@@ -292,7 +292,9 @@ class Output():
 
         return line
 
-    def write_json(path, json_data):
+    def write_json(path, json_data):  
+        folder = os.path.dirname(path)
+        if not os.path.exists(folder): os.makedirs(folder)
         f = open(path, "w")
         f.write(json.dumps(json_data, indent=4))
         f.close()
@@ -324,9 +326,13 @@ class Report():
         results.update({"_meta": _meta})
         folder = config["report"]["folder"]
         strftime = config["report"]["strftime"]
-        if not os.path.exists(folder): os.makedirs(folder)
+        
         date = time.strftime(strftime, time.gmtime(time_end)) 
-        path = folder + os.sep + domain + "_" + date + ".json"
+        path = folder    
+        if path[len(path)-4:] != "json": 
+            path += os.sep + domain + "_" + date + ".json"
+        
+        
         Output.write_json(path, results)
 
     def csv(report):
@@ -511,7 +517,7 @@ class Start():
             config["no_http_code"] = args.code
 
         if args.folder:
-            if not os.access(args.folder, os.W_OK): sys.exit("folder not writable: " + args.folder)
+            #if not os.access(args.folder, os.W_OK): sys.exit("folder not writable: " + args.folder)
             config["report"]["folder"] = args.folder
             config["report"]["save"] = True
 
